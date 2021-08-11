@@ -44,6 +44,9 @@ public final class CoreDataFeedStore: FeedStore {
 
 	public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
 		context.perform {
+			do {
+				try ManagedCache.find(in: self.context).map(self.context.delete)
+			} catch {}
 			let manageCacheToInsert = ManagedCache(context: self.context)
 			manageCacheToInsert.feed = NSOrderedSet(array: feed.map { local in
 				let managedFeedImage = ManagedFeedImage(context: self.context)
