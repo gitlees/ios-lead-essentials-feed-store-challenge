@@ -12,9 +12,13 @@ import CoreData
 
 @objc(ManagedFeedImage)
 class ManagedFeedImage: NSManagedObject {
-	@NSManaged var id: UUID?
+	@NSManaged var id: UUID
 	@NSManaged var imageDescription: String?
 	@NSManaged var imageLocation: String?
-	@NSManaged var url: URL?
+	@NSManaged var url: URL
 	@NSManaged var cache: ManagedCache?
+
+	var asLocal: LocalFeedImage {
+		return LocalFeedImage(id: id, description: imageDescription, location: imageLocation, url: url)
+	}
 }
