@@ -47,8 +47,8 @@ public final class CoreDataFeedStore: FeedStore {
 			do {
 				try ManagedCache.find(in: context).map(context.delete)
 				
-				let manageCacheToInsert = ManagedCache(context: context)
-				manageCacheToInsert.feed = NSOrderedSet(array: feed.map { local in
+				let managedCache = ManagedCache(context: context)
+				managedCache.feed = NSOrderedSet(array: feed.map { local in
 					let managedFeedImage = ManagedFeedImage(context: context)
 					managedFeedImage.id = local.id
 					managedFeedImage.imageDescription = local.description
@@ -56,12 +56,12 @@ public final class CoreDataFeedStore: FeedStore {
 					managedFeedImage.url = local.url
 					return managedFeedImage
 				})
-				manageCacheToInsert.timestamp = timestamp
+				managedCache.timestamp = timestamp
 				
 				try context.save()
 				completion(nil)
 			} catch {
-				self.context.rollback()
+				context.rollback()
 				completion(error)
 			}
 		}
@@ -74,7 +74,7 @@ public final class CoreDataFeedStore: FeedStore {
 				try context.save()
 				completion(nil)
 			} catch {
-				self.context.rollback()
+				context.rollback()
 				completion(error)
 			}
 		}
