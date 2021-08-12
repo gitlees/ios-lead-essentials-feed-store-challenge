@@ -68,6 +68,15 @@ public final class CoreDataFeedStore: FeedStore {
 	}
 
 	public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
-		completion(nil)
+		context.perform {
+			do {
+				try ManagedCache.find(in: self.context).map(self.context.delete)
+				try self.context.save()
+				completion(nil)
+			} catch {
+				self.context.rollback()
+				completion(error)
+			}
+		}
 	}
 }
