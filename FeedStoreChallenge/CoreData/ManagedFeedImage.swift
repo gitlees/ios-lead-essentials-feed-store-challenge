@@ -22,3 +22,16 @@ class ManagedFeedImage: NSManagedObject {
 		return LocalFeedImage(id: id, description: imageDescription, location: imageLocation, url: url)
 	}
 }
+
+extension Array where Element == LocalFeedImage {
+	func asOrderedSet(in context: NSManagedObjectContext) -> NSOrderedSet {
+		return NSOrderedSet(array: map { local in
+			let managedFeedImage = ManagedFeedImage(context: context)
+			managedFeedImage.id = local.id
+			managedFeedImage.imageDescription = local.description
+			managedFeedImage.imageLocation = local.location
+			managedFeedImage.url = local.url
+			return managedFeedImage
+		})
+	}
+}

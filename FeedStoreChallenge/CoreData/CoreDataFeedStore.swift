@@ -7,19 +7,19 @@ import CoreData
 public final class CoreDataFeedStore: FeedStore {
 	private static let modelName = "FeedStore"
 	private static let model = NSManagedObjectModel(name: modelName, in: Bundle(for: CoreDataFeedStore.self))
-	
+
 	private let container: NSPersistentContainer
 	private let context: NSManagedObjectContext
-	
+
 	struct ModelNotFound: Error {
 		let modelName: String
 	}
-	
+
 	public init(storeURL: URL) throws {
 		guard let model = CoreDataFeedStore.model else {
 			throw ModelNotFound(modelName: CoreDataFeedStore.modelName)
 		}
-		
+
 		container = try NSPersistentContainer.load(
 			name: CoreDataFeedStore.modelName,
 			model: model,
@@ -27,7 +27,7 @@ public final class CoreDataFeedStore: FeedStore {
 		)
 		context = container.newBackgroundContext()
 	}
-	
+
 	public func retrieve(completion: @escaping RetrievalCompletion) {
 		context.perform { [context] in
 			do {
@@ -41,23 +41,16 @@ public final class CoreDataFeedStore: FeedStore {
 			}
 		}
 	}
-	
+
 	public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
 		context.perform { [context] in
 			do {
 				try ManagedCache.find(in: context).map(context.delete)
-				
+
 				let managedCache = ManagedCache(context: context)
-				managedCache.feed = NSOrderedSet(array: feed.map { local in
-					let managedFeedImage = ManagedFeedImage(context: context)
-					managedFeedImage.id = local.id
-					managedFeedImage.imageDescription = local.description
-					managedFeedImage.imageLocation = local.location
-					managedFeedImage.url = local.url
-					return managedFeedImage
-				})
+				managedCache.feed = feed.asOrderedSet(in: context)
 				managedCache.timestamp = timestamp
-				
+
 				try context.save()
 				completion(nil)
 			} catch {
@@ -66,11 +59,12 @@ public final class CoreDataFeedStore: FeedStore {
 			}
 		}
 	}
-	
+
 	public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
 		context.perform { [context] in
 			do {
 				try ManagedCache.find(in: context).map(context.delete)
+				
 				try context.save()
 				completion(nil)
 			} catch {
