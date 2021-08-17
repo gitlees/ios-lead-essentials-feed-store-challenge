@@ -24,7 +24,7 @@ class ManagedFeedImage: NSManagedObject {
 }
 
 extension Array where Element == LocalFeedImage {
-	func toManagedImages(in context: NSManagedObjectContext) -> NSOrderedSet {
+	func asOrderedSet(in context: NSManagedObjectContext) -> NSOrderedSet {
 		return NSOrderedSet(array: map { local in
 			let managedFeedImage = ManagedFeedImage(context: context)
 			managedFeedImage.id = local.id
