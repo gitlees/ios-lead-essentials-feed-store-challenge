@@ -48,7 +48,7 @@ public final class CoreDataFeedStore: FeedStore {
 				try ManagedCache.find(in: context).map(context.delete)
 
 				let managedCache = ManagedCache(context: context)
-				managedCache.feed = feed.asOrderedSet(in: context)
+				managedCache.feed = feed.toManagedImages(in: context)
 				managedCache.timestamp = timestamp
 
 				try context.save()
